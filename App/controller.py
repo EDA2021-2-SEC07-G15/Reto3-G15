@@ -29,10 +29,41 @@ import csv
 El controlador se encarga de mediar entre la vista y el modelo.
 """
 
-# Inicialización del Catálogo de libros
+# Inicialización del Catálogo de avistamientos
+def initCatalog():
+    catalogo = model.newCatalog()
+    return catalogo
 
 # Funciones para la carga de datos
+def loadData(catalogo, Ufofile):
+    """
+    Carga los datos de los archivos CSV en el modelo
+    """
+    UFoFile = cf.data_dir + Ufofile
+    input_file = csv.DictReader(open(UFoFile, encoding="utf-8"),
+                                delimiter=",")
+    for avistamiento in input_file:
+        model.addAvistamiento(catalogo, avistamiento)
+    return catalogo
 
 # Funciones de ordenamiento
 
 # Funciones de consulta sobre el catálogo
+def AvistamientosByCity(catalog,ciudad):
+    mapa = catalog["Ciudad"]
+    return model.AvistamientosByCity(mapa,ciudad)
+def DatesInRange(catalog,fecha1,fecha2):
+    mapa = catalog["Fechas"]
+    model.DatesInRange(mapa,fecha1,fecha2)
+def AvistamientosInRange(catalogo,longitudinf,longitudmay,latitudinf,latitudmay):
+    mapa = catalogo["Longitud"]
+    model.AvistamientosInRange(mapa,longitudinf,longitudmay,latitudinf,latitudmay)
+
+def indexHeight(mapa):
+ 
+    return model.indexHeight(mapa)
+
+
+def indexSize(mapa):
+
+    return model.indexSize(mapa)

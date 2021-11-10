@@ -20,11 +20,14 @@
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
  """
 
+import time
 import config as cf
 import sys
 import controller
 from DISClib.ADT import list as lt
 assert cf
+from DISClib.ADT import orderedmap as om
+from DISClib.DataStructures import mapentry as me
 
 
 """
@@ -33,11 +36,55 @@ Presenta el menu de opciones y por cada seleccion
 se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
-
+Ufofile = "UFOS-utf8-small.csv"
 def printMenu():
+    print("---------------------------------------")
+    print("\n")
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- ")
+    print("2- Contar avistamientos en una ciudad")
+    print("3- Contar avistamientos por duración")
+    print("4- Contar avistamientos por hora/minutos del día")
+    print("5- Contar avistamientos en un rango de fehcas")
+    print("6- Contar avistamientos de una zona geográfica")
+    print("\n")
+    print("---------------------------------------")
+def PrintResults1(mapa,ciudad):
+    cantidadAv = om.size(mapa)
+    print("Hay " + str(cantidadAv) + " avistamientos en: " + str(ciudad))
+    print("Los primeros y ultimos 3 son: ")
+    rango = 3
+    mapaArecorrer = mapa 
+    i = 1
+    while i <= rango:
+        llave = om.minKey(mapaArecorrer)
+        pareja = om.get(mapaArecorrer,llave)
+        valor = me.getValue(pareja)
+        print("-------------------------------")
+        print("Date time: " + str(valor["datetime"]))
+        print("City: " + str(ciudad))
+        print("State: "+ str(valor["state"]))
+        print("Country: " + str(valor["country"]))
+        print("Shape: " + str(valor["shape"]))
+        print("Duration (seconds): " + str(valor["duration (seconds)"]))
+        mapaArecorrer = om.deleteMin(mapaArecorrer)
+        i+=1
+    j = 1 
+    while j <= rango and om.size(mapaArecorrer) >= 1:
+        llave = om.maxKey(mapaArecorrer)
+        pareja = om.get(mapaArecorrer,llave)
+        valor = me.getValue(pareja)
+        print("-------------------------------")
+        print("Date time: " + str(valor["datetime"]))
+        print("City: " + str(ciudad))
+        print("State: "+ str(valor["state"]))
+        print("Country: " + str(valor["country"]))
+        print("Shape: " + str(valor["shape"]))
+        print("Duration (seconds): " + str(valor["duration (seconds)"]))
+        mapaArecorrer = om.deleteMax(mapaArecorrer)
+        j +=1 
+
+
 
 catalog = None
 
@@ -49,10 +96,38 @@ while True:
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
         print("Cargando información de los archivos ....")
-
+        catalog = controller.initCatalog()
     elif int(inputs[0]) == 2:
-        pass
-
+        print("Cargando información de los avistamientos... ")
+        controller.loadData(catalog,'UFOS-utf8-small.csv')
+        print("Se han cargado los datos exitosamente")
+        print("Total de datos cargados: " + str(lt.size(catalog["avistamiento"])))
+    elif int(inputs[0]) == 3:
+        ciudad = input("Ingrese la ciudad que desea consultar: ")
+        mapa_de_ciudad = controller.AvistamientosByCity(catalog,ciudad)
+        print('Altura del arbol: ' + str(controller.indexHeight(mapa_de_ciudad)))
+        print('Elementos en el arbol: ' + str(controller.indexSize(mapa_de_ciudad)))
+        PrintResults1(mapa_de_ciudad,ciudad)
+    elif int(inputs[0]) == 6:
+        print("Hay " + str(om.size(catalog["Fechas"])) + " avistamientos de UFO en diferentes fechas [YYYY-MM-DD]")
+        print("El avistamiento más antiguo es: ")
+        Oldest = om.minKey(catalog["Fechas"])
+        pareja = om.get(catalog["Fechas"], Oldest)
+        valor = me.getValue(pareja)
+        tamaño = lt.size(valor)
+        print("Date: " + str(Oldest) + "count: " + str(tamaño))
+        fecha1 = input("Ingrese la primera fecha en formato (YYYY-MM-DD): ")
+        date1 = time.strptime(fecha1, '%Y-%m-%d')
+        fecha2 = input("Ingrese la segunda fecha en formato (YYYY-MM-DD): ")
+        date2 = time.strptime(fecha2, '%Y-%m-%d')
+        llaves = controller.DatesInRange(catalog,date1,date2)
+    elif int(inputs[0]) == 7:
+        Longitud_inf = float(input("Ingrese el limite inferior de longitud: "))
+        Longitud_May = float(input("Ingrese el limite superior de longitud: "))
+        Latitud_inf = float(input("Ingrese el limite inferior de latitud: "))
+        Latitud_May = float(input("Ingrese el limite superior de latitud: "))
+        mapa = controller.AvistamientosInRange(catalog,Longitud_inf,Longitud_May,Latitud_inf,Latitud_May)
+        print("Hay " + str(om.size(mapa)))
     else:
         sys.exit(0)
 sys.exit(0)
