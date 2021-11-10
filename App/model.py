@@ -25,7 +25,7 @@
  """
 
 
-from DISClib.DataStructures.arraylist import deleteElement, lastElement
+from DISClib.DataStructures.arraylist import deleteElement, iterator, lastElement
 from DISClib.DataStructures.bst import contains
 import config as cf
 from DISClib.ADT import list as lt
@@ -88,17 +88,25 @@ def UpdateDates (map,avistamiento,fecha):
         lt.addLast(lis,avistamiento)
         om.put(map,fecha,lis)
 def UpadateLong(mapa,avistamiento,longitud,latitud):
-    existCity = om.contains(mapa,longitud)
+    existCity = om.contains(mapa,float(longitud))
     if existCity:
-        entry = om.get(mapa,longitud)
+        entry = om.get(mapa,float(longitud))
         valor = me.getValue(entry)
-        om.put(valor,latitud,avistamiento)
-        print("hola")
-        
+        existlat = om.contains(valor,float(latitud))
+        if existlat:
+            pareja_lat = om.get(valor,float(latitud))
+            valor_lat = me.getValue(pareja_lat)
+            lt.addLast(valor_lat,avistamiento)
+        else:
+            lis2 = lt.newList(datastructure="ARRAY_LIST")
+            lt.addLast(lis2,avistamiento)
+            om.put(valor,float(latitud),lis2)
     else:
         mapaLat = om.newMap(omaptype="RBT",comparefunction=cmpDate)
-        om.put(mapaLat,latitud,avistamiento)
-        om.put(mapa,longitud,mapaLat)
+        lis = lt.newList(datastructure="ARRAY_LIST")
+        lt.addLast(lis,avistamiento)
+        om.put(mapaLat,float(latitud),lis)
+        om.put(mapa,float(longitud),mapaLat)
 
 # Funciones para creacion de datos
 
@@ -113,13 +121,7 @@ def AvistamientosByCity(mapa,city):
             avistamiento = lt.getElement(avistamientosBycity,i)
             fecha = avistamiento["datetime"]
             fechaAcomparar = time.strptime(fecha, '%Y-%m-%d %H:%M:%S')
-            existCity = om.contains(AvistamientosCity,fechaAcomparar)
-            if existCity:
-                pareja = om.get(AvistamientosCity,fechaAcomparar)
-                valor = me.getValue(pareja)
-                lt.addLast(valor,avistamiento)
-            else:
-                om.put(AvistamientosCity,fechaAcomparar,avistamiento)
+            om.put(AvistamientosCity,fechaAcomparar,avistamiento)
 
             i += 1 
     return AvistamientosCity
@@ -152,24 +154,40 @@ def DatesInRange(mapa,fecha1,fecha2):
         j += 1
 def AvistamientosInRange(mapa,longitudinf,longitudmay,latitudinf,latitudmay):
     mapa_avistamientos = om.newMap(omaptype="RBT",comparefunction=cmpDate)
-    LongitudesInrange = om.values(mapa,longitudinf,longitudmay)
+    LongitudesInrange = om.values(mapa,longitudmay,longitudinf)
     iterador1 = lt.iterator(LongitudesInrange)
     i = 1
     while i <= lt.size(LongitudesInrange):
         elemento = next(iterador1)
-        LatitudesInRange = om.values(elemento,latitudinf,latitudmay)
+        LatitudesInRange = om.keys(elemento,latitudinf,latitudmay)
         iterador2 = lt.iterator(LatitudesInRange)
         j = 1 
         while j <= lt.size(LatitudesInRange):
             elemento2 = next(iterador2)
-            latitud = elemento2["latitude"]
-            om.put(mapa_avistamientos,latitud,elemento2)
+            pareja = om.get(elemento,elemento2)
+            valor = me.getValue(pareja)
+            if lt.size(valor) > 1:
+                recorrerlista(mapa_avistamientos, valor)
+            else: 
+                latitud = float(lt.getElement(valor,0)["latitude"])
+                om.put(mapa_avistamientos,latitud,valor) 
             j +=1
         i+=1
     return mapa_avistamientos
 
-
-
+def recorrerlista(mapa_avistamientos, valor):
+    iterador3 = lt.iterator(valor)
+    i = 1
+    while i <= lt.size(valor):
+        if i > 1:
+            elemento3 = next(iterador3)
+            latitud = round(float(elemento3["latitude"]),3)
+            om.put(mapa_avistamientos,latitud,valor)
+        else:
+            elemento3 = next(iterador3)
+            latitud = float(elemento3["latitude"])
+            om.put(mapa_avistamientos,latitud,valor)
+        i+=1 
 def indexHeight(mapa):
 
     return om.height(mapa)

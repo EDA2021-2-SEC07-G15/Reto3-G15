@@ -83,6 +83,67 @@ def PrintResults1(mapa,ciudad):
         print("Duration (seconds): " + str(valor["duration (seconds)"]))
         mapaArecorrer = om.deleteMax(mapaArecorrer)
         j +=1 
+def PrintResults5(mapa):
+    print("There are " + str(om.size(mapa)) + " different UFO sightings in the current area")
+    print("The first 5 and last 5 UFO sightings in this time are: ")
+    mapaArecorrer = mapa
+    if om.size(mapa) >= 10:
+        rango = 5
+        i = 1
+        while i <= rango:
+            llave = om.minKey(mapaArecorrer)
+            pareja = om.get(mapaArecorrer,llave)
+            elemento = me.getValue(pareja)
+            valor = lt.getElement(elemento,0)
+            print("-------------------------------")
+            print("Date time: " + str(valor["datetime"]))
+            print("City: " + str(valor["city"]))
+            print("State: "+ str(valor["state"]))
+            print("Country: " + str(valor["country"]))
+            print("Shape: " + str(valor["shape"]))
+            print("Duration (seconds): " + str(valor["duration (seconds)"]))
+            print("latitude: " + str(valor["latitude"]))
+            print("longitude: " + str(valor["longitude"]))
+            mapaArecorrer = om.deleteMin(mapaArecorrer)
+            i+=1
+        j = 1 
+        while j <= rango and om.size(mapaArecorrer) >= 1:
+            llave = om.maxKey(mapaArecorrer)
+            pareja = om.get(mapaArecorrer,llave)
+            elemento = me.getValue(pareja)
+            valor = lt.getElement(elemento,0)
+            print("-------------------------------")
+            print("Date time: " + str(valor["datetime"]))
+            print("City: " + str(valor["city"]))
+            print("State: "+ str(valor["state"]))
+            print("Country: " + str(valor["country"]))
+            print("Shape: " + str(valor["shape"]))
+            print("Duration (seconds): " + str(valor["duration (seconds)"]))
+            print("latitude: " + str(valor["latitude"]))
+            print("longitude: " + str(valor["longitude"]))
+            mapaArecorrer = om.deleteMax(mapaArecorrer)
+            j +=1 
+    else:
+        rango = om.size(mapa)
+        i = 1
+        while i <= rango:
+            llave = om.minKey(mapaArecorrer)
+            pareja = om.get(mapaArecorrer,llave)
+            elemento = me.getValue(pareja)
+            valor = lt.getElement(elemento,0)
+            print("-------------------------------")
+            print("Date time: " + str(valor["datetime"]))
+            print("City: " + str(valor["city"]))
+            print("State: "+ str(valor["state"]))
+            print("Country: " + str(valor["country"]))
+            print("Shape: " + str(valor["shape"]))
+            print("Duration (seconds): " + str(valor["duration (seconds)"]))
+            print("latitude: " + str(valor["latitude"]))
+            print("longitude: " + str(valor["longitude"]))
+
+            mapaArecorrer = om.deleteMin(mapaArecorrer)
+            i+=1
+
 
 
 
@@ -99,7 +160,7 @@ while True:
         catalog = controller.initCatalog()
     elif int(inputs[0]) == 2:
         print("Cargando información de los avistamientos... ")
-        controller.loadData(catalog,'UFOS-utf8-small.csv')
+        controller.loadData(catalog,'UFOS-utf8-large.csv')
         print("Se han cargado los datos exitosamente")
         print("Total de datos cargados: " + str(lt.size(catalog["avistamiento"])))
     elif int(inputs[0]) == 3:
@@ -127,7 +188,7 @@ while True:
         Latitud_inf = float(input("Ingrese el limite inferior de latitud: "))
         Latitud_May = float(input("Ingrese el limite superior de latitud: "))
         mapa = controller.AvistamientosInRange(catalog,Longitud_inf,Longitud_May,Latitud_inf,Latitud_May)
-        print("Hay " + str(om.size(mapa)))
+        PrintResults5(mapa)
     else:
         sys.exit(0)
 sys.exit(0)

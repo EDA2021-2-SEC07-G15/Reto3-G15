@@ -57,7 +57,7 @@ def DatesInRange(catalog,fecha1,fecha2):
     model.DatesInRange(mapa,fecha1,fecha2)
 def AvistamientosInRange(catalogo,longitudinf,longitudmay,latitudinf,latitudmay):
     mapa = catalogo["Longitud"]
-    model.AvistamientosInRange(mapa,longitudinf,longitudmay,latitudinf,latitudmay)
+    return model.AvistamientosInRange(mapa,longitudinf,longitudmay,latitudinf,latitudmay)
 
 def indexHeight(mapa):
  
