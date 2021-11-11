@@ -35,6 +35,7 @@ from DISClib.Algorithms.Sorting import shellsort as sa
 from DISClib.ADT import orderedmap as om
 import time
 assert cf
+from datetime import datetime
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá dos listas, una para los videos, otra para las categorias de
@@ -49,6 +50,9 @@ def newCatalog():
     catalogo["Ciudad"] = mp.newMap(1000,maptype="CHAINING", loadfactor=0.5)
     catalogo["Fechas"] = om.newMap(omaptype="RBT",comparefunction=cmpDate)
     catalogo["Longitud"] = om.newMap(omaptype="RBT",comparefunction=cmpDate)
+    catalogo["duracion"] = om.newMap(omaptype="RBT",comparefunction=cmpDate)
+    catalogo["Horas"] = om.newMap(omaptype="RBT",comparefunction=cmpDate)
+
     return catalogo
 
 # Funciones para agregar informacion al catalogo
@@ -56,9 +60,12 @@ def addAvistamiento (catalogo,avistamiento):
     lt.addLast(catalogo["avistamiento"],avistamiento)
     ciudad = avistamiento["city"]
     Completedate = avistamiento["datetime"]
+    duracion = float(avistamiento["duration (seconds)"])
     WhitoutHour = Completedate.split()
     fecha = WhitoutHour[0]
+    hour = WhitoutHour[1]
     date = time.strptime(fecha, '%Y-%m-%d')
+    finalhour = time.strptime(hour,'%H:%M:%S')
     latCompleta = float(avistamiento["latitude"])
     longCompleta = float(avistamiento["longitude"])
     Latitud = round(latCompleta,2)
@@ -66,6 +73,8 @@ def addAvistamiento (catalogo,avistamiento):
     UpdateCiudad(catalogo["Ciudad"],avistamiento,ciudad)
     UpdateDates(catalogo["Fechas"],avistamiento,date)
     UpadateLong(catalogo["Longitud"],avistamiento,Longitud,Latitud)
+    UpdateSeconds(catalogo["duracion"], avistamiento, duracion, ciudad)
+    UpdateHours(catalogo["Horas"], avistamiento, finalhour)
     return catalogo
 def UpdateCiudad(map,avistamiento,city):
     existCity = mp.contains(map,city)
@@ -107,6 +116,46 @@ def UpadateLong(mapa,avistamiento,longitud,latitud):
         lt.addLast(lis,avistamiento)
         om.put(mapaLat,float(latitud),lis)
         om.put(mapa,float(longitud),mapaLat)
+def UpdateSeconds (map,avistamiento,duracion, ciudad):
+    existCity = om.contains(map,float(duracion))
+    if existCity:
+        entry = om.get(map,float(duracion))
+        valor = me.getValue(entry)
+        existlat = om.contains(valor,ciudad)
+        if existlat:
+            pareja_lat = om.get(valor,ciudad)
+            valor_lat = me.getValue(pareja_lat)
+            lt.addLast(valor_lat,avistamiento)
+        else:
+            lis2 = lt.newList(datastructure="ARRAY_LIST")
+            lt.addLast(lis2,avistamiento)
+            om.put(valor,ciudad,lis2)
+    else:
+        mapaLat = om.newMap(omaptype="RBT",comparefunction=cmpDate)
+        lis = lt.newList(datastructure="ARRAY_LIST")
+        lt.addLast(lis,avistamiento)
+        om.put(mapaLat,ciudad,lis)
+        om.put(map,float(duracion),mapaLat)
+def UpdateHours (map,avistamiento,hour):
+    existCity = om.contains(map,hour)
+    if existCity:
+        entry = om.get(map,hour)
+        valor = me.getValue(entry)
+        lt.addLast(valor,avistamiento)
+    else:
+        lis = lt.newList(datastructure="ARRAY_LIST")
+        lt.addLast(lis,avistamiento)
+        om.put(map,hour,lis)
+def UpdateHours (map,avistamiento,hour):
+    existCity = om.contains(map,hour)
+    if existCity:
+        entry = om.get(map,hour)
+        valor = me.getValue(entry)
+        lt.addLast(valor,avistamiento)
+    else:
+        lis = lt.newList(datastructure="ARRAY_LIST")
+        lt.addLast(lis,avistamiento)
+        om.put(map,hour,lis)
 
 # Funciones para creacion de datos
 
@@ -188,6 +237,101 @@ def recorrerlista(mapa_avistamientos, valor):
             latitud = float(elemento3["latitude"])
             om.put(mapa_avistamientos,latitud,valor)
         i+=1 
+def AvistamientosBySeconds(mapa, minlimit, maxlimit):
+    llaves = om.values(mapa,minlimit,maxlimit)
+    elements = lt.iterator(llaves)
+    i = 1
+    while i <= 3:
+        elementos = next(elements)
+        elemento = om.minKey(elementos)
+        var = om.get(elementos, elemento)
+        valor = me.getValue(var)
+        if lt.size(valor)> 1:
+            z = 0
+            while z < lt.size(valor) and i <= 3: 
+                info = lt.getElement(valor, z)
+                print("-------------------------------")
+                print("Date time: " + str(info["datetime"]))
+                print("City: " + str(info["city"]))
+                print("State: "+ str(info["state"]))
+                print("Country: " + str(info["country"]))
+                print("Shape: " + str(info["shape"]))
+                print("Duration (seconds): " + str(info["duration (seconds)"]))
+                elementos = om.deleteMin(elementos)
+                z+=1
+                i+= 1
+        else:
+            info = lt.getElement(valor,0)
+            print("-------------------------------")
+            print("Date time: " + str(info["datetime"]))
+            print("City: " + str(info["city"]))
+            print("State: "+ str(info["state"]))
+            print("Country: " + str(info["country"]))
+            print("Shape: " + str(info["shape"]))
+            print("Duration (seconds): " + str(info["duration (seconds)"]))
+
+        i+=1
+    j = 0
+    while j <=2:
+        elementos = lt.getElement(llaves, lt.size(llaves) - j)
+        elemento = om.minKey(elementos)
+        var = om.get(elementos, elemento)
+        valor = me.getValue(var)
+        if lt.size(valor)> 1:
+            m = 0
+            while m < lt.size(valor) and j <= 3: 
+                info = lt.getElement(valor, m)
+                print("-------------------------------")
+                print("Date time: " + str(info["datetime"]))
+                print("City: " + str(info["city"]))
+                print("State: "+ str(info["state"]))
+                print("Country: " + str(info["country"]))
+                print("Shape: " + str(info["shape"]))
+                print("Duration (seconds): " + str(info["duration (seconds)"]))
+                elementos = om.deleteMin(elementos)
+                m+=1
+                j+= 1
+        else:
+            info = lt.getElement(valor,0)
+            print("-------------------------------")
+            print("Date time: " + str(info["datetime"]))
+            print("City: " + str(info["city"]))
+            print("State: "+ str(info["state"]))
+            print("Country: " + str(info["country"]))
+            print("Shape: " + str(info["shape"]))
+            print("Duration (seconds): " + str(info["duration (seconds)"]))
+
+        j+=1
+
+
+    
+def HoursInRange(mapa,hour1,hour2):
+    llaves = om.values(mapa,hour1,hour2)
+    iter1 = lt.iterator(llaves)
+    i = 1 
+    while i <= 3:
+        elementos = next(iter1)
+        elemento = lt.getElement(elementos,0)
+        print("-----------------------")
+        print("Date time: " + str(elemento["datetime"]))
+        print("City: " + str(elemento["city"]))
+        print("State: "+ str(elemento["state"]))
+        print("Country: " + str(elemento["country"]))
+        print("Shape: " + str(elemento["shape"]))
+        print("Duration (seconds): " + str(elemento["duration (seconds)"]))
+        i +=1
+    j = 1
+    while j <= 3:
+        elementos = lt.removeLast(llaves)
+        elemento = lt.getElement(elementos,0)
+        print("-----------------------")
+        print("Date time: " + str(elemento["datetime"]))
+        print("City: " + str(elemento["city"]))
+        print("State: "+ str(elemento["state"]))
+        print("Country: " + str(elemento["country"]))
+        print("Shape: " + str(elemento["shape"]))
+        print("Duration (seconds): " + str(elemento["duration (seconds)"]))
+        j += 1
 def indexHeight(mapa):
 
     return om.height(mapa)

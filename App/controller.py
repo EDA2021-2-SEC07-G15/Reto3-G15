@@ -58,6 +58,12 @@ def DatesInRange(catalog,fecha1,fecha2):
 def AvistamientosInRange(catalogo,longitudinf,longitudmay,latitudinf,latitudmay):
     mapa = catalogo["Longitud"]
     return model.AvistamientosInRange(mapa,longitudinf,longitudmay,latitudinf,latitudmay)
+def AvistamientosBySeconds(catalog, minlimit, maxlimit):
+    mapa = catalog["duracion"]
+    return model.AvistamientosBySeconds(mapa, minlimit, maxlimit)   
+def HoursInRange(catalog,hora1,hora2):
+    mapa = catalog["Horas"]
+    model.HoursInRange(mapa,hora1,hora2)
 
 def indexHeight(mapa):
  

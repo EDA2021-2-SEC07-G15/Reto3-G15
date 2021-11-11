@@ -28,6 +28,7 @@ from DISClib.ADT import list as lt
 assert cf
 from DISClib.ADT import orderedmap as om
 from DISClib.DataStructures import mapentry as me
+from datetime import datetime
 
 
 """
@@ -42,11 +43,12 @@ def printMenu():
     print("\n")
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- Contar avistamientos en una ciudad")
-    print("3- Contar avistamientos por duración")
-    print("4- Contar avistamientos por hora/minutos del día")
-    print("5- Contar avistamientos en un rango de fehcas")
-    print("6- Contar avistamientos de una zona geográfica")
+    print("2- Cargar avistamientos")
+    print("3- Contar avistamientos en una ciudad")
+    print("4- Contar avistamientos por duracion")
+    print("5- Contar avistamientos por hora/minutos del dia")
+    print("6- Contar avistamientos en un rango de fechas")
+    print("7- Contar avistamientos de una zona geográfica")
     print("\n")
     print("---------------------------------------")
 def PrintResults1(mapa,ciudad):
@@ -160,7 +162,7 @@ while True:
         catalog = controller.initCatalog()
     elif int(inputs[0]) == 2:
         print("Cargando información de los avistamientos... ")
-        controller.loadData(catalog,'UFOS-utf8-large.csv')
+        controller.loadData(catalog,'UFOS-utf8-small.csv')
         print("Se han cargado los datos exitosamente")
         print("Total de datos cargados: " + str(lt.size(catalog["avistamiento"])))
     elif int(inputs[0]) == 3:
@@ -169,6 +171,16 @@ while True:
         print('Altura del arbol: ' + str(controller.indexHeight(mapa_de_ciudad)))
         print('Elementos en el arbol: ' + str(controller.indexSize(mapa_de_ciudad)))
         PrintResults1(mapa_de_ciudad,ciudad)
+    elif int(inputs[0]) == 4:
+        maxlimit = float (input ("Ingrese la duración máxima en segundos: "))
+        minlimit = float (input ("Ingrese la duración mínima en segundos: "))
+        mapaAvistamientosPorRangoDeSegundos = controller.AvistamientosBySeconds(catalog, minlimit, maxlimit)   
+    elif int(inputs[0]) == 5:
+        minlimit = input ("Ingrese la hora mínima en formato HH:MM:SS: ")
+        minLimit1 = time.strptime(minlimit,'%H:%M:%S')
+        maxlimit = input ("Ingrese la hora máxima en formato HH:MM:SS: ")
+        maxlimit1 = time.strptime(maxlimit,'%H:%M:%S')
+        mapaAvistamientosPorHoraMinutos = controller.HoursInRange(catalog, minLimit1, maxlimit1) 
     elif int(inputs[0]) == 6:
         print("Hay " + str(om.size(catalog["Fechas"])) + " avistamientos de UFO en diferentes fechas [YYYY-MM-DD]")
         print("El avistamiento más antiguo es: ")
